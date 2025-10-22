@@ -1,0 +1,78 @@
+# Deploy VitePress to GitHub Pages
+#
+# This workflow automatically builds and deploys the VitePress documentation site
+# to GitHub Pages whenever changes are pushed to the main branch.
+#
+# MANUAL SETUP REQUIRED:
+# Before this workflow can succeed, configure your GitHub repository:
+# 1. Go to Settings > Pages
+# 2. Under "Build and deployment", set Source to "GitHub Actions"
+# 3. Go to Settings > Actions > General
+# 4. Under "Workflow permissions", ensure "Read and write permissions" is enabled
+#    (or at minimum, ensure Actions can create Pages deployments)
+#
+# No secrets are required - the workflow uses the default GITHUB_TOKEN.
+
+name: Deploy VitePress to GitHub Pages
+
+on:
+  # Trigger deployment on push to main branch
+  push:
+    branches:
+      - main
+  # Allow manual deployment from Actions tab
+  workflow_dispatch:
+
+# Required permissions for GitHub Pages deployment
+permissions:
+  contents: read    # Read repository contents
+  pages: write      # Deploy to GitHub Pages
+  id-token: write   # Verify deployment authenticity
+
+# Prevent concurrent deployments to avoid race conditions
+# Only one deployment should run at a time to ensure consistency
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Checkout the repository
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Fetch all history for proper git-based features
+
+      # Step 2: Setup Node.js with dependency caching
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'  # Cache npm dependencies for faster builds
+
+      # Step 3: Install dependencies
+      - name: Install dependencies
+        run: npm ci
+
+      # Step 4: Build the VitePress site
+      # Output will be in docs/.vitepress/dist
+      - name: Build VitePress site
+        run: npm run build
+
+      # Step 5: Configure GitHub Pages
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      # Step 6: Upload the built site as an artifact
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: docs/.vitepress/dist
+
+      # Step 7: Deploy to GitHub Pages
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
