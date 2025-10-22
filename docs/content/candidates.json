@@ -1,0 +1,22 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "description": "Candidate data for NJ Politics voter decision aid",
+  "candidates": [
+    {
+      "id": "mikie-sherrill",
+      "name": "Mikie Sherrill",
+      "party": "Democratic",
+      "headshot": "https://via.placeholder.com/100",
+      "summary": "U.S. Representative for New Jersey's 11th congressional district.",
+      "issues": []
+    },
+    {
+      "id": "jack-ciattarelli",
+      "name": "Jack Ciattarelli",
+      "party": "Republican",
+      "headshot": "https://via.placeholder.com/100",
+      "summary": "Former member of the New Jersey General Assembly.",
+      "issues": []
+    }
+  ]
+}
