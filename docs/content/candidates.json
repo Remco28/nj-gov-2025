@@ -8,7 +8,40 @@
       "party": "Democratic",
       "headshot": "https://via.placeholder.com/100",
       "summary": "U.S. Representative for New Jersey's 11th congressional district.",
-      "issues": []
+      "issues": [],
+      "talkingPoints": [
+        {
+          "id": "sherrill-healthcare",
+          "title": "Healthcare Access",
+          "summary": "Committed to protecting and expanding access to affordable healthcare for all New Jersey families.",
+          "details": "Mikie Sherrill has consistently voted to protect the Affordable Care Act and expand Medicare coverage. She believes healthcare is a right, not a privilege, and has worked to lower prescription drug costs for seniors and families across New Jersey.",
+          "sources": [
+            {
+              "label": "Voting Record on Healthcare",
+              "url": "https://example.com/sherrill-healthcare"
+            }
+          ]
+        },
+        {
+          "id": "sherrill-environment",
+          "title": "Environmental Protection",
+          "summary": "Fighting climate change and protecting New Jersey's natural resources for future generations.",
+          "details": "As a Navy veteran and mother, Mikie understands the importance of protecting our environment. She has supported clean energy initiatives, worked to clean up contaminated sites, and fought to protect New Jersey's coastline from the impacts of climate change.",
+          "sources": [
+            {
+              "label": "Environmental Initiatives",
+              "url": "https://example.com/sherrill-environment"
+            }
+          ]
+        },
+        {
+          "id": "sherrill-economy",
+          "title": "Economic Growth",
+          "summary": "Supporting small businesses and creating good-paying jobs for New Jersey workers.",
+          "details": "Mikie Sherrill has worked to support small businesses through tax relief and access to capital. She believes in investing in infrastructure and workforce development to create sustainable economic growth that benefits all New Jersey residents.",
+          "sources": []
+        }
+      ]
     },
     {
       "id": "jack-ciattarelli",
@@ -16,7 +49,28 @@
       "party": "Republican",
       "headshot": "https://via.placeholder.com/100",
       "summary": "Former member of the New Jersey General Assembly.",
-      "issues": []
+      "issues": [],
+      "talkingPoints": [
+        {
+          "id": "ciattarelli-taxes",
+          "title": "Tax Relief",
+          "summary": "Pledging to lower property taxes and make New Jersey more affordable for working families.",
+          "details": "Jack Ciattarelli has made tax relief a cornerstone of his campaign. He proposes comprehensive property tax reform and has outlined plans to reduce the tax burden on New Jersey families and businesses, making the state more competitive and affordable.",
+          "sources": [
+            {
+              "label": "Tax Relief Plan",
+              "url": "https://example.com/ciattarelli-taxes"
+            }
+          ]
+        },
+        {
+          "id": "ciattarelli-education",
+          "title": "Education Quality",
+          "summary": "Improving educational outcomes and giving parents more choice in their children's education.",
+          "details": "Jack believes in empowering parents and investing in quality education for all New Jersey children. His plan includes increasing funding for schools, supporting teachers, and expanding educational options to ensure every child has access to excellent education.",
+          "sources": []
+        }
+      ]
     }
   ]
 }

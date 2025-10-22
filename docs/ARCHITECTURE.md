@@ -126,6 +126,83 @@ const candidates = getAllCandidates()
 
 This pattern ensures all pages use the same data source and components remain consistent across the site.
 
+## Interactive Flow (Phase 3)
+
+Phase 3 introduces interactive components that enable users to explore candidate talking points through an engaging "spin → bubble → modal" experience.
+
+### Interactive Components
+
+**Location**: `docs/.vitepress/theme/components/`
+
+**SpinnerButton.vue**: A circular button that triggers the random talking point selection. Includes loading states, accessibility attributes (`role="button"`, `aria-busy`), and keyboard support (Enter/Space).
+
+**TalkingPointBubble.vue**: Speech bubble component that displays a talking point's title and summary. Clickable to open full details. Includes subtle animations and focus management.
+
+**TalkingPointModal.vue**: Accessible dialog that shows complete talking point details including sources. Features:
+- Focus trapping (Tab/Shift+Tab cycle within modal)
+- Escape key to close
+- Overlay click to close
+- Body scroll locking when open
+- ARIA attributes (`role="dialog"`, `aria-modal="true"`, `aria-labelledby`)
+
+**CandidateInteractive.vue**: Orchestration component that manages the complete interactive flow. Handles state transitions and coordinates all subcomponents.
+
+### State Management
+
+**Location**: `docs/.vitepress/data/state/useTalkingPointState.ts`
+
+Vue composable that provides reactive state management:
+- `activeTalkingPointId`: Currently displayed talking point
+- `lastTalkingPointId`: Prevents showing the same point twice in a row
+- `currentTalkingPoint`: Full talking point object
+- `spin()`: Selects a random talking point
+- `reset()`: Clears active point while preserving history
+- `clearAll()`: Completely resets state
+
+### Data Dependencies
+
+Talking points are stored in `docs/content/candidates.json` within each candidate object:
+
+```json
+{
+  "talkingPoints": [
+    {
+      "id": "unique-id",
+      "title": "Talking Point Title",
+      "summary": "Brief 1-2 sentence summary",
+      "details": "Longer explanation for modal",
+      "sources": [
+        { "label": "Source Name", "url": "https://..." }
+      ]
+    }
+  ]
+}
+```
+
+Helper functions in `docs/.vitepress/data/candidates.ts`:
+- `getTalkingPointsByCandidate(id)`: Returns all talking points for a candidate
+- `getRandomTalkingPoint(id, excludeId?)`: Returns random point, avoiding repeats
+
+### User Experience Flow
+
+1. User clicks spinner button
+2. System randomly selects a talking point (avoiding the last shown)
+3. Speech bubble appears with title and summary
+4. User clicks bubble to open modal
+5. Modal displays full details with sources
+6. User closes modal and can spin again for a different point
+
+### Accessibility Features
+
+- **Keyboard Navigation**: All interactions support Enter/Space keys
+- **Focus Management**: Modal traps focus and restores it on close
+- **Screen Readers**: Proper ARIA labels and roles throughout
+- **Visual Focus**: Clear focus indicators on all interactive elements
+- **Color Contrast**: Meets WCAG AA standards (4.5:1 ratio)
+- **Responsive**: Works on mobile, tablet, and desktop
+
+This pattern ensures all pages use the same data source and components remain consistent across the site.
+
 ## Related Docs
 
 - Project Plan: `comms/planning-overview.md`
