@@ -5,7 +5,7 @@
 - [x] Initialize VitePress project structure (`docs` folder, etc.)
 - [x] Configure VitePress as an SPA (`spa: true`)
 - [x] Create basic landing page with static candidate cards
-- [ ] Set up GitHub Actions for automated deployment to GitHub Pages
+- [x] Set up GitHub Actions for automated deployment to GitHub Pages
 
 ## Future Enhancements
 - [ ] Implement modular content structure (Phase 2)
