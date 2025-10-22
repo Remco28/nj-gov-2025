@@ -1,9 +1,9 @@
 # Dependencies
 /node_modules
 
-# VitePress
-.vitepress/cache
-.vitepress/dist
+# VitePress generated files
+**/.vitepress/cache/
+**/.vitepress/dist/
 
 # Build output
 /dist
