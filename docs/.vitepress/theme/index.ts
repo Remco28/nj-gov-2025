@@ -13,6 +13,9 @@ import CandidateInteractive from './components/CandidateInteractive.vue'
 import SpinnerButton from './components/SpinnerButton.vue'
 import TalkingPointBubble from './components/TalkingPointBubble.vue'
 import TalkingPointModal from './components/TalkingPointModal.vue'
+import QaMetricCard from './components/qa/QaMetricCard.vue'
+import QaMetricGrid from './components/qa/QaMetricGrid.vue'
+import QaIssueList from './components/qa/QaIssueList.vue'
 
 export default {
   extends: DefaultTheme,
@@ -24,5 +27,8 @@ export default {
     app.component('SpinnerButton', SpinnerButton)
     app.component('TalkingPointBubble', TalkingPointBubble)
     app.component('TalkingPointModal', TalkingPointModal)
+    app.component('QaMetricCard', QaMetricCard)
+    app.component('QaMetricGrid', QaMetricGrid)
+    app.component('QaIssueList', QaIssueList)
   }
 } satisfies Theme

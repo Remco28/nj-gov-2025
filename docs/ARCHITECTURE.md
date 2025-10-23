@@ -61,6 +61,25 @@ Developer adds/edits a "user-friendly" Markdown file → AI Agent converts it to
 - **Development**: A local dev server is run via `npm run dev`.
 - **Security**: As a static site, the attack surface is minimal. Source citation is important for content integrity.
 
+### Quality Assurance Dashboard
+
+The QA Dashboard (`/qa/`) is an internal tooling page for content maintainers to audit structured data quality before publishing. It provides automated checks and metrics to identify data gaps and inconsistencies.
+
+**Purpose**: Ensure candidate and talking point data is complete, accurate, and ready for publication by surfacing actionable quality issues.
+
+**Metrics & Issue Groups**:
+- **Summary Metrics**: Total candidates, total talking points, average per candidate, coverage statistics
+- **Candidate Coverage**: Per-candidate breakdown of talking point counts and missing fields
+- **Data Quality Warnings**:
+  - Candidates without talking points (critical)
+  - Talking points missing details or sources (warning)
+  - Duplicate talking point IDs across candidates (critical)
+  - Placeholder headshot images (warning)
+
+**Implementation**: The dashboard operates entirely within the static stack using VitePress + Vue. Data helpers in `docs/.vitepress/data/qaMetrics.ts` provide pure, synchronous functions that analyze `candidates.json` and return typed metrics and issue lists. Vue components (`QaMetricCard`, `QaMetricGrid`, `QaIssueList`) render the dashboard UI with accessible, semantic styling.
+
+**Workflow**: Content editors should review the QA Dashboard after updating `docs/content/candidates.json` to verify all critical issues are resolved before committing changes. The dashboard is accessible via the main navigation but is not included in the sidebar, keeping it available but distinct from user-facing content.
+
 ## Modular Content Structure (Phase 2)
 
 As of Phase 2, the site uses a data-driven architecture to separate content from presentation. This makes it easier to add/update candidate information without touching layout logic.
