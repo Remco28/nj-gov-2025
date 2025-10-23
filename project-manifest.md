@@ -3,6 +3,7 @@
 This file is the single source of truth for locating key project assets.
 
 ## Core Documents
+- **Repository Overview**: `README.md`
 - **Architecture Overview**: `docs/ARCHITECTURE.md`
 - **Project Plan**: `comms/planning-overview.md`
 - **Next Steps & Tasks**: `NEXT_STEPS.md`
