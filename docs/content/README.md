@@ -123,6 +123,27 @@ Talking points power the interactive spinner feature. Each talking point represe
 - Ensure all required fields are present
 - Test the interactive spinner after adding talking points
 
+## QA Checklist
+
+After updating candidate data, review the [QA Dashboard](/qa/) to ensure content quality:
+
+**What to Check:**
+- **Critical Issues**: Resolve these before publishing
+  - Candidates without talking points
+  - Duplicate talking point IDs (each ID must be unique across all candidates)
+- **Warning Issues**: Address these for better content quality
+  - Missing details in talking points
+  - Missing sources (at least one source recommended per talking point)
+  - Placeholder headshots (replace with actual candidate photos)
+
+**Common Warnings & How to Fix:**
+- **"Talking point missing sources"**: Add at least one source citation to the `sources` array
+- **"Talking point missing details"**: Fill in the `details` field with extended explanation
+- **"Placeholder headshot"**: Replace placeholder URLs (e.g., via.placeholder.com) with real candidate photos
+- **"Candidate has no talking points"**: Add at least 2-3 talking points to the candidate's `talkingPoints` array
+
+The QA Dashboard automatically scans `candidates.json` and highlights issues, making it easy to maintain high-quality content without manual verification.
+
 ## Validation
 
 After making changes:
