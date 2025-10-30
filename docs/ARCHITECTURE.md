@@ -308,6 +308,87 @@ VitePress performs server-side rendering (SSR) during the build process, which r
 
 **Current Approach**: Moving the all-points logic into a dedicated Vue component allows us to validate candidate data with explicit loops before rendering, avoiding the `undefined` access errors that appeared when complex `<script setup>` blocks lived inside Markdown. Follow the same pattern for future dynamic pages—encapsulate stateful logic inside `.vue` components and keep the Markdown wrapper declarative.
 
+## Design System & Visual Polish (Phase 5)
+
+Phase 5 introduces a consistent visual design system with global design tokens, responsive enhancements, and UI polish across all core pages.
+
+### Global Design Tokens
+
+**Location**: `docs/.vitepress/theme/styles/foundations.css`
+
+This stylesheet defines the foundation of our visual system:
+
+**Spacing Scale**: CSS variables (`--space-xs` through `--space-3xl`) provide consistent spacing for margins, padding, and gaps throughout the application. These tokens replace hard-coded pixel values and ensure visual rhythm.
+
+**Border Radius**: Standardized border radius values (`--radius-sm/md/lg/full`) for consistent component styling.
+
+**Shadow Presets**: Layered shadow tokens (`--shadow-subtle` through `--shadow-xl`) that provide depth without visual clutter. All shadows use consistent color values for brand cohesion.
+
+**Brand Color Tints**: Extended color palette including gradient backgrounds (`--gradient-soft/medium`) used for card backgrounds and interactive states.
+
+**Utility Classes**:
+- `.screen-container`: Centers content with a maximum width of 1040px and responsive padding
+- `.section-padding`: Consistent vertical spacing for page sections
+- `.sr-only` / `.visually-hidden`: Accessibility helper for screen reader-only content
+- `.card` / `.card-gradient`: Reusable card styles with hover states
+
+All design tokens are imported globally in `docs/.vitepress/theme/index.ts` and are available across all components.
+
+### All-Points Page Enhancements
+
+**Candidate Headers**: Each candidate section now displays a 60px circular headshot beside their name and party. Images fall back to initials if the headshot fails to load.
+
+**Active Navigation**: Quick-nav chips use IntersectionObserver to highlight the currently visible candidate section. The active chip receives a distinct background (`--brand-strong` with white text) and automatically scrolls into view within the horizontal scroll container.
+
+**Responsive Navigation**: On screens under 768px, the quick-nav chips become horizontally scrollable with custom scrollbar styling, maintaining accessibility while saving vertical space. The select dropdown remains available for keyboard users.
+
+**Card Polish**: Talking point cards now feature:
+- Subtle gradient backgrounds that intensify on hover
+- Increased padding using spacing tokens
+- Source count displayed as "Sources · X" with a decorative icon
+- Improved footer layout that stacks vertically on narrow screens
+
+**Empty States**: Candidates without talking points display a prominent dashed-border container with an icon and explanatory text, making the absence obvious to content editors.
+
+**Accessibility**: All chips are keyboard-focusable, active chips have `aria-current="true"`, and focus indicators meet WCAG contrast requirements.
+
+### Candidates Page Improvements
+
+**Layout Container**: The entire candidates page content is wrapped in `.screen-container` for consistent alignment with the all-points page.
+
+**Two-Column Interactive Layout**: On screens ≥1024px, `CandidateInteractive` displays a card-style layout with:
+- Left column: Spinner button
+- Right column: Candidate headshot (140px), name, and party
+- Bottom row: Speech bubble spanning both columns
+
+The layout collapses to a single stacked column on mobile with generous spacing.
+
+**Enhanced Candidate Cards**: `CandidateCard` component now features:
+- 128px headshots (up from 100px) with 3:4 aspect ratio support via `object-fit: cover`
+- Faint drop shadows and hover translation effects
+- Improved typography using design tokens
+- Focus-visible outlines for keyboard navigation
+
+### Landing Page Hero
+
+**Reduced Padding**: Hero section uses `var(--space-3xl)` top padding and `var(--space-2xl)` bottom padding (reduces to `var(--space-2xl)` and `var(--space-xl)` on mobile).
+
+**Enhanced Tagline**: Updated tagline references the All Points catalog, providing immediate context for new users.
+
+**Call-to-Action**: Two-button layout with primary "Explore Candidates" and secondary "View All Points" actions. Buttons stack vertically at full width on mobile.
+
+**Container Alignment**: Hero content uses a max-width of 1040px to match the global screen container.
+
+### Component Token Adoption
+
+Existing components have been refactored to use design tokens where appropriate:
+- Padding and margin values use spacing variables
+- Border radius uses radius tokens
+- Shadow effects use shadow presets
+- All transitions maintain consistent 0.2s ease timing
+
+This ensures future design adjustments can be made globally by updating token values rather than hunting through component styles.
+
 ## Related Docs
 
 - Project Plan: `comms/planning-overview.md`

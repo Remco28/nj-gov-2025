@@ -7,6 +7,7 @@
 
 import DefaultTheme from 'vitepress/theme'
 import type { Theme } from 'vitepress'
+import './styles/foundations.css'
 import CandidateCard from './components/CandidateCard.vue'
 import CandidateGrid from './components/CandidateGrid.vue'
 import CandidateInteractive from './components/CandidateInteractive.vue'
