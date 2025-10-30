@@ -17,7 +17,7 @@
 
 ## Content Production
 - [ ] Research current NJ 2025 race topics and gather talking points per candidate
-- [ ] Replace placeholder headshots with vetted, licensed images
+- [x] Replace placeholder headshots with vetted, licensed images
 - [ ] Draft detailed talking point `details` copy and cite trustworthy sources
 - [ ] Validate new content via `/qa/` dashboard before publishing
 
