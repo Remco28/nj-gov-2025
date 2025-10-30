@@ -260,13 +260,13 @@ New typed interface and functions for flattening candidate/talking point data:
 
 ### Page Structure
 
-**Location**: `docs/all-points/index.md`
+**Location**: `docs/.vitepress/theme/components/AllPointsPage.vue` (rendered via `docs/all-points/index.md`)
 
-The page is built as a VitePress Markdown file with a Vue `<script setup>` block that:
-- Imports data helpers and reactive state from Vue
-- Groups entries by candidate for organized display
-- Manages modal state (open/closed, active entry)
-- Handles deep-link behavior on page mount
+The markdown file now simply mounts the dedicated Vue component. `AllPointsPage.vue`:
+- Loads candidate data up front and normalizes talking points into per-candidate “section” objects
+- Manages modal state, hash navigation, and keyboard focus restoration internally
+- Exposes quick navigation chips and mobile select controls without relying on inline Markdown scripting
+- Reuses `TalkingPointModal` for detail disclosure while passing candidate context labels
 
 **Layout Sections**:
 1. **Hero**: Title and description explaining the deterministic browsing purpose
@@ -306,28 +306,7 @@ The all-points page reuses the same `TalkingPointModal` component from Phase 3, 
 
 VitePress performs server-side rendering (SSR) during the build process, which requires special handling for Vue components in Markdown pages:
 
-**Issue**: During SSR, Vue's `v-for` directive can encounter undefined items in arrays even when the source data is valid. This manifests as "Cannot read properties of undefined" errors during `npm run build`.
-
-**Solution**: Use computed properties with explicit validation instead of inline filtering or direct array iteration:
-
-```typescript
-// ❌ Problematic - inline filter may fail during SSR
-v-for="item in array.filter(x => x.valid)"
-
-// ✓ Recommended - computed with explicit loop validation
-const processedItems = computed(() => {
-  const result = []
-  for (let i = 0; i < items.length; i++) {
-    const item = items[i]
-    if (item && typeof item === 'object' && item.requiredProp) {
-      result.push(item)
-    }
-  }
-  return result
-})
-```
-
-When implementing new data-driven pages, validate data structures early in computed properties rather than relying on optional chaining (`?.`) or inline filters within templates. This ensures SSR can safely render all content during the build phase.
+**Current Approach**: Moving the all-points logic into a dedicated Vue component allows us to validate candidate data with explicit loops before rendering, avoiding the `undefined` access errors that appeared when complex `<script setup>` blocks lived inside Markdown. Follow the same pattern for future dynamic pages—encapsulate stateful logic inside `.vue` components and keep the Markdown wrapper declarative.
 
 ## Related Docs
 
