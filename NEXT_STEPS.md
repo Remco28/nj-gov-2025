@@ -11,7 +11,7 @@
 - [x] Implement modular content structure (Phase 2)
 - [x] Build interactive components (spinner, speech bubble, modal) (Phase 3)
 - [x] Add QA dashboard for content coverage
-- [ ] Create the all-points overview page (Phase 4)
+- [x] Create the all-points overview page (Phase 4)
 - [ ] Polish UI/UX and test for mobile responsiveness (Phase 5)
 - [ ] Layer issue-level exploration (nested questions/answers) once content is ready
 

@@ -11,6 +11,7 @@ export default defineConfig({
     nav: [
       { text: 'Home', link: '/' },
       { text: 'Candidates', link: '/candidates/' },
+      { text: 'All Points', link: '/all-points/' },
       { text: 'QA Dashboard', link: '/qa/' }
     ],
 

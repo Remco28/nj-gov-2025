@@ -115,3 +115,69 @@ export function getRandomTalkingPoint(candidateId: string, excludeId?: string): 
   // Return a random point from available points
   return availablePoints[Math.floor(Math.random() * availablePoints.length)]
 }
+
+/**
+ * Represents a flattened candidate talking point entry for aggregation views
+ */
+export interface CandidateTalkingPointEntry {
+  /** Candidate unique identifier */
+  candidateId: string
+  /** Candidate full name */
+  candidateName: string
+  /** Candidate party affiliation */
+  candidateParty: string
+  /** Candidate summary/bio */
+  candidateSummary: string
+  /** The talking point data */
+  talkingPoint: TalkingPoint
+  /** Composite anchor ID for deep-linking (candidateId-talkingPointId) */
+  anchorId: string
+}
+
+/**
+ * Get all candidate talking points flattened into a single array
+ * Ordered by candidate (preserving input order), then by talking point order within each candidate
+ * @returns Array of flattened candidate talking point entries
+ */
+export function getAllCandidateTalkingPoints(): CandidateTalkingPointEntry[] {
+  const entries: CandidateTalkingPointEntry[] = []
+  const candidates = getAllCandidates()
+
+  for (const candidate of candidates) {
+    // Skip candidates with no talking points
+    if (!candidate.talkingPoints || candidate.talkingPoints.length === 0) {
+      continue
+    }
+
+    for (const talkingPoint of candidate.talkingPoints) {
+      // Guard against missing IDs
+      if (!candidate.id || !talkingPoint.id) {
+        continue
+      }
+
+      // Create composite anchor ID (kebab-safe)
+      const anchorId = `${candidate.id.trim()}-${talkingPoint.id.trim()}`
+
+      entries.push({
+        candidateId: candidate.id,
+        candidateName: candidate.name,
+        candidateParty: candidate.party,
+        candidateSummary: candidate.summary,
+        talkingPoint,
+        anchorId
+      })
+    }
+  }
+
+  return entries
+}
+
+/**
+ * Find a specific candidate talking point entry by anchor ID
+ * @param anchorId - The composite anchor ID (candidateId-talkingPointId)
+ * @returns The matching entry, or undefined if not found
+ */
+export function findCandidateTalkingPoint(anchorId: string): CandidateTalkingPointEntry | undefined {
+  const entries = getAllCandidateTalkingPoints()
+  return entries.find(entry => entry.anchorId === anchorId)
+}

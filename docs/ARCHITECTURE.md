@@ -222,6 +222,113 @@ Helper functions in `docs/.vitepress/data/candidates.ts`:
 
 This pattern ensures all pages use the same data source and components remain consistent across the site.
 
+## All-Points Overview (Phase 4)
+
+Phase 4 introduces a comprehensive index page that aggregates every talking point from all candidates in a scannable, deterministic layout. This complements the random exploration flow by providing editors and power users with complete visibility into all content.
+
+### Purpose
+
+The `/all-points/` page serves multiple use cases:
+- **Content Auditing**: Editors can review all talking points in one place to identify gaps or inconsistencies
+- **Direct Access**: Users can browse all claims without randomization
+- **Deep Linking**: Share URLs to specific talking points using hash fragments (e.g., `/all-points/#candidate-id-talking-point-id`)
+- **Comparison**: View multiple candidates' positions side-by-side
+
+### Data Aggregation Helpers
+
+**Location**: `docs/.vitepress/data/candidates.ts`
+
+New typed interface and functions for flattening candidate/talking point data:
+
+**CandidateTalkingPointEntry Interface**:
+- `candidateId`: Candidate unique identifier
+- `candidateName`: Candidate full name
+- `candidateParty`: Candidate party affiliation
+- `candidateSummary`: Candidate bio
+- `talkingPoint`: Complete TalkingPoint object
+- `anchorId`: Composite ID for deep-linking (`candidateId-talkingPointId`)
+
+**getAllCandidateTalkingPoints()**: Returns flattened array of all talking points across all candidates. Preserves input order (candidates first, then talking points within each candidate). Skips candidates with zero talking points and guards against missing IDs.
+
+**findCandidateTalkingPoint(anchorId)**: Resolves a specific entry by composite anchor ID for deep-link support.
+
+### Modal Context Enhancement
+
+**TalkingPointModal.vue** now accepts an optional `contextLabel` prop that displays candidate context (e.g., "Mikie Sherrill · Democratic Party") as a small overline above the modal title. The label uses uppercase styling, letter-spacing, and muted colors from theme tokens. It includes `aria-describedby` for screen reader support.
+
+**CandidateInteractive.vue** passes context to the modal so users always know which candidate's talking point they're viewing, whether accessed from the spinner flow or the all-points page.
+
+### Page Structure
+
+**Location**: `docs/all-points/index.md`
+
+The page is built as a VitePress Markdown file with a Vue `<script setup>` block that:
+- Imports data helpers and reactive state from Vue
+- Groups entries by candidate for organized display
+- Manages modal state (open/closed, active entry)
+- Handles deep-link behavior on page mount
+
+**Layout Sections**:
+1. **Hero**: Title and description explaining the deterministic browsing purpose
+2. **Quick Navigation**:
+   - Desktop: Inline anchor links for each candidate
+   - Mobile: `<select>` dropdown jump menu
+3. **Candidate Sections**: Each candidate gets a `<section>` with:
+   - Candidate name, party, summary
+   - Count badge showing number of talking points
+   - Grid of talking point cards
+4. **Talking Point Cards**: Each card displays:
+   - Title, summary, source count
+   - "View details" button that opens the modal and updates the URL hash
+
+### Anchor and Hash Behavior
+
+**Anchor IDs**: Generated as `${candidateId}-${talkingPointId}` (kebab-safe concatenation). Applied to both candidate sections (`id=candidateId`) and talking point cards (`id=anchorId`).
+
+**Deep-Link Support**: On page mount, the component checks `window.location.hash`. If a valid talking point anchor is found:
+1. Scrolls to the card smoothly
+2. Auto-opens the modal with the correct entry
+3. Displays the modal with candidate context
+
+**Hash Management**: When closing the modal, the URL hash is cleared using `history.replaceState()` to maintain clean navigation without full page reloads.
+
+**Focus Restoration**: After closing the modal, focus returns to the originating "View details" button for keyboard accessibility.
+
+### Navigation Integration
+
+The "All Points" link is inserted between "Candidates" and "QA Dashboard" in the main navigation (`docs/.vitepress/config.mjs`). A callout tip box at the end of `/candidates/` page directs users to the full index for comprehensive browsing.
+
+### Relationship to Interactive Flow
+
+The all-points page reuses the same `TalkingPointModal` component from Phase 3, ensuring consistent modal behavior and styling across both the random exploration flow and the deterministic index. Both flows benefit from the new context label enhancement.
+
+### SSR Considerations
+
+VitePress performs server-side rendering (SSR) during the build process, which requires special handling for Vue components in Markdown pages:
+
+**Issue**: During SSR, Vue's `v-for` directive can encounter undefined items in arrays even when the source data is valid. This manifests as "Cannot read properties of undefined" errors during `npm run build`.
+
+**Solution**: Use computed properties with explicit validation instead of inline filtering or direct array iteration:
+
+```typescript
+// ❌ Problematic - inline filter may fail during SSR
+v-for="item in array.filter(x => x.valid)"
+
+// ✓ Recommended - computed with explicit loop validation
+const processedItems = computed(() => {
+  const result = []
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i]
+    if (item && typeof item === 'object' && item.requiredProp) {
+      result.push(item)
+    }
+  }
+  return result
+})
+```
+
+When implementing new data-driven pages, validate data structures early in computed properties rather than relying on optional chaining (`?.`) or inline filters within templates. This ensures SSR can safely render all content during the build phase.
+
 ## Related Docs
 
 - Project Plan: `comms/planning-overview.md`

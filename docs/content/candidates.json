@@ -6,7 +6,7 @@
       "id": "mikie-sherrill",
       "name": "Mikie Sherrill",
       "party": "Democratic",
-      "headshot": "https://via.placeholder.com/100",
+      "headshot": "/images/candidates/sherrill.jpg",
       "summary": "U.S. Representative for New Jersey's 11th congressional district.",
       "issues": [],
       "talkingPoints": [
@@ -47,7 +47,7 @@
       "id": "jack-ciattarelli",
       "name": "Jack Ciattarelli",
       "party": "Republican",
-      "headshot": "https://via.placeholder.com/100",
+      "headshot": "/images/candidates/ciattarelli.png",
       "summary": "Former member of the New Jersey General Assembly.",
       "issues": [],
       "talkingPoints": [

@@ -13,12 +13,18 @@ interface Props {
   loading?: boolean
   /** Whether the button is disabled */
   disabled?: boolean
+  /** Candidate headshot image URL */
+  headshot?: string
+  /** Candidate name for alt text */
+  candidateName?: string
 }
 
 withDefaults(defineProps<Props>(), {
   label: 'Spin for a Talking Point',
   loading: false,
-  disabled: false
+  disabled: false,
+  headshot: undefined,
+  candidateName: ''
 })
 
 interface Emits {
@@ -45,16 +51,22 @@ function handleKeyDown(event: KeyboardEvent) {
   <button
     class="spinner-button"
     role="button"
-    :aria-label="label"
+    :aria-label="`${label} for ${candidateName}`"
     :aria-busy="loading"
     :disabled="disabled || loading"
     @click="handleClick"
     @keydown="handleKeyDown"
   >
-    <span class="spinner-icon" :class="{ spinning: loading }">
+    <img
+      v-if="headshot"
+      :src="headshot"
+      :alt="candidateName"
+      class="spinner-headshot"
+      :class="{ spinning: loading }"
+    >
+    <span v-else class="spinner-icon" :class="{ spinning: loading }">
       {{ loading ? '⟳' : '🎲' }}
     </span>
-    <span class="spinner-label">{{ label }}</span>
   </button>
 </template>
 
@@ -63,17 +75,19 @@ function handleKeyDown(event: KeyboardEvent) {
   display: inline-flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 1.5rem;
-  border: 2px solid var(--vp-c-brand);
+  padding: 0;
+  border: 3px solid var(--vp-c-brand);
   border-radius: 50%;
   background: var(--vp-c-bg);
   color: var(--vp-c-brand);
   cursor: pointer;
   transition: all 0.3s ease;
-  min-width: 120px;
-  min-height: 120px;
+  width: 140px;
+  height: 140px;
   font-family: inherit;
+  overflow: hidden;
 }
 
 .spinner-button:hover:not(:disabled) {
@@ -125,12 +139,23 @@ function handleKeyDown(event: KeyboardEvent) {
   line-height: 1.2;
 }
 
+.spinner-headshot {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+
+.spinner-headshot.spinning {
+  animation: spin 1s linear infinite;
+}
+
 /* Responsive adjustments */
 @media (max-width: 640px) {
   .spinner-button {
-    min-width: 100px;
-    min-height: 100px;
-    padding: 1rem;
+    width: 110px;
+    height: 110px;
   }
 
   .spinner-icon {

@@ -103,6 +103,9 @@ function closeModal() {
         <SpinnerButton
           :disabled="!hasTalkingPoints"
           :loading="isSpinning"
+          :headshot="candidateData?.headshot"
+          :candidate-name="candidateData?.name || ''"
+          label="Spin for a Talking Point"
           @spin="handleSpin"
         />
       </div>
@@ -121,6 +124,7 @@ function closeModal() {
     <TalkingPointModal
       :talking-point="currentTalkingPoint"
       :open="isModalOpen"
+      :context-label="candidateData ? `${candidateData.name} · ${candidateData.party}` : undefined"
       @close="closeModal"
     />
   </div>

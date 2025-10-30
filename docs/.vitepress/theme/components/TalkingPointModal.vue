@@ -15,6 +15,8 @@ interface Props {
   talkingPoint: TalkingPoint | null
   /** Whether the modal is open */
   open: boolean
+  /** Optional context label (e.g., candidate name and party) */
+  contextLabel?: string
 }
 
 const props = defineProps<Props>()
@@ -135,9 +137,22 @@ onUnmounted(() => {
     >
       <div ref="modalRef" class="modal-container">
         <div class="modal-header">
-          <h2 :id="`modal-title-${talkingPoint.id}`" class="modal-title">
-            {{ talkingPoint.title }}
-          </h2>
+          <div class="modal-header-content">
+            <p
+              v-if="contextLabel"
+              :id="`modal-context-${talkingPoint.id}`"
+              class="modal-context"
+            >
+              {{ contextLabel }}
+            </p>
+            <h2
+              :id="`modal-title-${talkingPoint.id}`"
+              class="modal-title"
+              :aria-describedby="contextLabel ? `modal-context-${talkingPoint.id}` : undefined"
+            >
+              {{ talkingPoint.title }}
+            </h2>
+          </div>
           <button
             ref="closeButtonRef"
             class="modal-close"
@@ -220,13 +235,26 @@ onUnmounted(() => {
   border-bottom: 1px solid var(--vp-c-divider);
 }
 
+.modal-header-content {
+  flex: 1;
+}
+
+.modal-context {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: var(--vp-c-text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  line-height: 1;
+}
+
 .modal-title {
   margin: 0;
   font-size: 1.5rem;
   font-weight: 600;
   color: var(--vp-c-brand);
   line-height: 1.3;
-  flex: 1;
 }
 
 .modal-close {
