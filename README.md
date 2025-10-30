@@ -56,13 +56,38 @@ Refer to `docs/content/README.md` for additional writing guidance and best pract
 
 - Store candidate headshots under `docs/public/images/candidates/`.
 - Recommended specs:
-  - Format: `.webp` (preferred) or `.jpg`.
-  - Dimensions: 400×400 px minimum (square crop).
+  - Format: `.webp` (preferred) or high-quality `.jpg`.
+  - Dimensions: 600×750 px minimum (portrait crop; the site displays a 128 px circle).
   - File size: ≤ 200 KB after compression.
 - Reference images in `candidates.json` using the public path: `"/images/candidates/<filename>.webp"`.
 - Avoid placeholder URLs in production—use licensed or public-domain photos and document provenance separately if needed.
 
 VitePress copies everything inside `docs/public` to the site root at build time, so a file stored at `docs/public/images/candidates/sherrill.webp` is available at `/images/candidates/sherrill.webp`.
+
+## Research Submission Workflow
+
+1. **Drop raw research**
+   - Create a Markdown file in `research/submissions/`. Naming is flexible (`YYYY-MM-DD-topic.md` is suggested).
+   - Start from `templates/research.md` and keep each file focused on a single issue or candidate.
+   - Include working source URLs (publication name + link) inside the template’s “Evidence & Claims” section.
+2. **Log the handoff**
+   - Add an entry to `comms/log.md` noting the new submission (e.g., `RESEARCH SUBMITTED` with filename and short summary).
+   - Attach supporting files or PDFs separately if needed; note their location in the “Source Appendix”.
+3. **Keep it lightweight**
+   - Aim for concise bullet points, 3–5 claims per file, and explicit flags for any sensitive material.
+   - Prefer public links over paywalled sources when available.
+
+## AI Conversion Flow
+
+When an AI assistant receives a submission:
+
+1. **Review the research Markdown** and confirm sources are present.
+2. **Follow the existing content templates** (e.g., add talking points to `docs/content/candidates.json`, or create new Markdown/JSON files per the current spec). Preserve neutral tone, attribute each claim, and carry over any warnings.
+3. **Update the site data** and run `npm run build` (or `npm run dev`) to verify the new content renders.
+4. **Log progress in `comms/log.md`** (`AI CONVERSION START`, `AI CONVERSION DONE`) with references to the affected files.
+5. **Prompt editors to visit `/qa/`** after the conversion so they can confirm there are no missing details or sources.
+
+This lightweight workflow keeps submissions small enough for quick AI turnaround while documenting the full chain of custody for each talking point.
 
 ## Quality Assurance
 

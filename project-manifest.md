@@ -22,3 +22,7 @@ This file is the single source of truth for locating key project assets.
 - **Session Logs**: `comms/log.md`
 - **Active Task Specs**: `comms/tasks/`
 - **Archived Task Specs**: `comms/tasks/archive/`
+
+## Research Workflow
+- **Incoming Research Submissions**: `research/submissions/`
+- **Research Submission Template**: `templates/research.md`
