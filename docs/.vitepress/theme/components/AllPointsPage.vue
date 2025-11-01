@@ -5,6 +5,7 @@ import {
   findCandidateTalkingPoint,
   type CandidateTalkingPointEntry
 } from '../../data/candidates'
+import { useNavigationStack } from '../../data/state/useNavigationStack'
 import TalkingPointModal from './TalkingPointModal.vue'
 
 interface CandidateSectionEntry extends CandidateTalkingPointEntry {
@@ -52,6 +53,9 @@ for (const candidate of candidates) {
   })
 }
 
+// Navigation stack for modal
+const navigation = useNavigationStack()
+
 const isModalOpen = ref(false)
 const activeEntry = ref<CandidateSectionEntry | null>(null)
 const lastTriggerButton = ref<HTMLElement | null>(null)
@@ -59,6 +63,8 @@ const activeCandidateId = ref<string>('')
 
 function openModal(entry: CandidateSectionEntry, trigger?: HTMLElement) {
   activeEntry.value = entry
+  // Initialize navigation stack with the topic
+  navigation.openTopic(entry.talkingPoint)
   isModalOpen.value = true
   lastTriggerButton.value = trigger ?? null
 
@@ -69,6 +75,8 @@ function openModal(entry: CandidateSectionEntry, trigger?: HTMLElement) {
 
 function closeModal() {
   isModalOpen.value = false
+  // Reset navigation stack
+  navigation.reset()
 
   if (typeof window !== 'undefined') {
     history.replaceState(null, '', window.location.pathname + window.location.search)
@@ -307,11 +315,11 @@ onMounted(async () => {
     </div>
 
     <TalkingPointModal
-      :talking-point="activeEntry?.talkingPoint ?? null"
       :open="isModalOpen"
       :context-label="
         activeEntry ? `${activeEntry.candidateName} · ${activeEntry.candidateParty}` : undefined
       "
+      :navigation="navigation"
       @close="closeModal"
     />
   </div>

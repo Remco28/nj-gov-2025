@@ -13,6 +13,7 @@
 import { ref, computed } from 'vue'
 import { getCandidateById, getTalkingPointsByCandidate, type Candidate } from '../../data/candidates'
 import { useTalkingPointState } from '../../data/state/useTalkingPointState'
+import { useNavigationStack } from '../../data/state/useNavigationStack'
 import SpinnerButton from './SpinnerButton.vue'
 import TalkingPointBubble from './TalkingPointBubble.vue'
 import TalkingPointModal from './TalkingPointModal.vue'
@@ -50,6 +51,9 @@ const hasTalkingPoints = computed(() => {
 // Initialize state management
 const { currentTalkingPoint, spin } = useTalkingPointState(candidateId.value)
 
+// Initialize navigation stack for modal
+const navigation = useNavigationStack()
+
 // Modal state
 const isModalOpen = ref(false)
 
@@ -64,8 +68,13 @@ function handleSpin() {
   isSpinning.value = true
 
   setTimeout(() => {
-    spin()
+    const topic = spin()
     isSpinning.value = false
+
+    // Initialize navigation stack with the new topic if spin succeeded
+    if (topic) {
+      navigation.openTopic(topic)
+    }
   }, 500)
 }
 
@@ -73,6 +82,10 @@ function handleSpin() {
  * Open the modal to show full details
  */
 function openModal() {
+  // Re-seed navigation stack if it's empty or doesn't have the current talking point
+  if (currentTalkingPoint.value && !navigation.currentNode.value) {
+    navigation.openTopic(currentTalkingPoint.value)
+  }
   isModalOpen.value = true
 }
 
@@ -81,6 +94,8 @@ function openModal() {
  */
 function closeModal() {
   isModalOpen.value = false
+  // Reset navigation stack when closing modal
+  navigation.reset()
 }
 </script>
 
@@ -125,9 +140,9 @@ function closeModal() {
     </div>
 
     <TalkingPointModal
-      :talking-point="currentTalkingPoint"
       :open="isModalOpen"
       :context-label="candidateData ? `${candidateData.name} · ${candidateData.party}` : undefined"
+      :navigation="navigation"
       @close="closeModal"
     />
   </div>
