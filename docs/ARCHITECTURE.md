@@ -32,7 +32,7 @@ Git Push triggers GitHub Actions
 
 ### Example: User Interacts with a Candidate Claim
 ```
-User clicks candidate photo → Vue component triggers "spinner" → Random talking point is displayed in a speech bubble → User clicks bubble → Vue component loads claim data from Markdown frontmatter → Modal displays with nested, clickable questions.
+User clicks candidate photo → Vue component triggers the spinner → A random top-level topic is displayed in the speech bubble → User clicks the bubble → Modal loads topic data from `candidates.json`, showing the blurb plus follow-up questions → User selects a question to drill down, with a back control to return to the previous level.
 ```
 
 ### Example: Content Update
@@ -42,17 +42,17 @@ Developer adds/edits a "user-friendly" Markdown file → AI Agent converts it to
 
 ## Key Abstractions
 
-- **Entities**: Candidate, Talking Point (Claim), Question, Answer, Side Fact. These are structured in Markdown frontmatter.
-- **Boundaries**: The primary boundary is the static site itself, consumed by users in a browser. The content update process is a development-time boundary.
+- **Entities**: Candidate, Topic (top-level talking point), Follow-Up (recursive question/answer node). These live in `docs/content/candidates.json`.
+- **Boundaries**: The primary boundary is the static site consumed in the browser. Content editing happens offline by updating JSON and Markdown sources in the repo.
 
 ## Configuration
 
-- **VitePress Config**: `docs/.vitepress/config.js` will contain site-level configuration, navigation, and SPA settings.
+- **VitePress Config**: `docs/.vitepress/config.mjs` contains site-level configuration, navigation, and SPA settings.
 - **Content Config**: YAML frontmatter within Markdown files (`.md`) will configure the content for each page and claim.
 
 ## Integration Points
 
-- **Content Source**: All content is sourced from local Markdown files within the `/docs` directory.
+- **Content Source**: Candidate data is sourced from `docs/content/candidates.json`; editorial pages live alongside it in `/docs`.
 - **Deployment**: GitHub Pages hosts the static output.
 
 ## Runtime & Operations Notes
@@ -80,70 +80,41 @@ The QA Dashboard (`/qa/`) is an internal tooling page for content maintainers to
 
 **Workflow**: Content editors should review the QA Dashboard after updating `docs/content/candidates.json` to verify all critical issues are resolved before committing changes. The dashboard is accessible via the main navigation but is not included in the sidebar, keeping it available but distinct from user-facing content.
 
-## Modular Content Structure (Phase 2)
+## Modular Content Structure
 
-As of Phase 2, the site uses a data-driven architecture to separate content from presentation. This makes it easier to add/update candidate information without touching layout logic.
+Phase 2 moved the site to a data-driven architecture backed by JSON, keeping content and presentation separate while staying easy to edit.
 
 ### Data Layer
 
-**Location**: `docs/content/candidates.json`
+- **Location**: `docs/content/candidates.json`
+- **Candidate Fields**: `id`, `name`, `party`, `headshot`, `summary`, `issues`, and `talkingPoints`
+- **Top-Level Topics**: Items inside `talkingPoints` represent primary talking point topics. Each topic may include optional `followUps`, enabling recursive question chains.
 
-This JSON file contains the single source of truth for all candidate information:
-- `id`: Unique identifier (kebab-case, e.g., "mikie-sherrill")
-- `name`: Full name
-- `party`: Political party affiliation
-- `headshot`: URL to candidate photo
-- `summary`: Brief bio or description
-- `issues`: Array of issue positions (for future use)
+### Helper Modules
 
-**Helper Functions**: `docs/.vitepress/data/candidates.ts`
+`docs/.vitepress/data/candidates.ts` exposes typed helpers:
+- `getAllCandidates()` / `getCandidateById()` / `getCandidateCount()` for general access
+- `getTalkingPointsByCandidate()` and `getRandomTalkingPoint()` to feed the interactive spinner
+- Aggregation helpers (`getAllCandidateTalkingPoints`, `findCandidateTalkingPoint`) for the `/all-points/` page
 
-TypeScript module providing typed access to candidate data:
-- `getAllCandidates()`: Returns all candidates
-- `getCandidateById(id)`: Finds a specific candidate
-- `getCandidateCount()`: Returns total number of candidates
+Upcoming deep-dive work will extend these helpers to understand parent/child relationships, flatten nested follow-ups for auditing views, and ensure only top-level topics surface in random spins.
 
 ### Theme Components
 
-**Location**: `docs/.vitepress/theme/components/`
+Reusable Vue components in `docs/.vitepress/theme/components/` consume the shared helpers:
+- `CandidateCard.vue`, `CandidateGrid.vue` render static lists
+- `CandidateInteractive.vue`, `TalkingPointModal.vue`, and supporting pieces orchestrate the interactive flow
+- `AllPointsPage.vue` provides the deterministic overview using the aggregation helpers
 
-**CandidateCard.vue**: Displays a single candidate with their headshot, name, party, and summary. Includes hover effects and responsive styling.
+Components are registered globally via `docs/.vitepress/theme/index.ts`, so Markdown pages can drop them in without additional setup.
 
-**CandidateGrid.vue**: Renders a responsive grid of CandidateCard components. Automatically adapts to screen size.
+### Editing Workflow
 
-**Registration**: Components are registered globally in `docs/.vitepress/theme/index.ts` and can be used directly in Markdown files.
+1. Update or add candidates/topics in `docs/content/candidates.json`.
+2. Run `npm run dev` for live preview or `npm run build` to validate JSON.
+3. Use the `/qa/` dashboard to catch missing fields or duplicate IDs before merging.
 
-### Adding a New Candidate
-
-1. Open `docs/content/candidates.json`
-2. Add a new object to the `candidates` array:
-   ```json
-   {
-     "id": "candidate-name",
-     "name": "Candidate Full Name",
-     "party": "Party Name",
-     "headshot": "https://example.com/photo.jpg",
-     "summary": "Brief description...",
-     "issues": []
-   }
-   ```
-3. The candidate will automatically appear on the candidates page
-4. No code changes required!
-
-### Reusability Pattern
-
-The data helper functions can be imported in any Markdown page using `<script setup>`:
-
-```vue
-<script setup>
-import { getAllCandidates } from '../.vitepress/data/candidates'
-const candidates = getAllCandidates()
-</script>
-
-<CandidateGrid :candidates="candidates" />
-```
-
-This pattern ensures all pages use the same data source and components remain consistent across the site.
+As we introduce follow-up questions, editors will add nested `followUps` arrays under the relevant topic. Only the top-level topics need summaries tuned for the spinner bubble; follow-ups can focus on the question-and-answer exchange shown in the modal.
 
 ## Interactive Flow (Phase 3)
 
@@ -178,6 +149,8 @@ Vue composable that provides reactive state management:
 - `reset()`: Clears active point while preserving history
 - `clearAll()`: Completely resets state
 
+The deep-dive work will evolve this composable (or introduce a new one) to maintain a navigation stack of topics and follow-ups, enabling the modal back button and breadcrumb context.
+
 ### Data Dependencies
 
 Talking points are stored in `docs/content/candidates.json` within each candidate object:
@@ -186,12 +159,21 @@ Talking points are stored in `docs/content/candidates.json` within each candidat
 {
   "talkingPoints": [
     {
-      "id": "unique-id",
+      "id": "topic-id",
       "title": "Talking Point Title",
-      "summary": "Brief 1-2 sentence summary",
-      "details": "Longer explanation for modal",
+      "summary": "Brief 1-2 sentence summary for the spinner bubble.",
+      "details": "Longer explanation for the modal (optional).",
       "sources": [
         { "label": "Source Name", "url": "https://..." }
+      ],
+      "followUps": [
+        {
+          "id": "follow-up-id",
+          "prompt": "Has this approach been tried elsewhere?",
+          "summary": "Short answer shown when the question opens.",
+          "details": "Optional supporting context.",
+          "followUps": []
+        }
       ]
     }
   ]
@@ -204,12 +186,14 @@ Helper functions in `docs/.vitepress/data/candidates.ts`:
 
 ### User Experience Flow
 
-1. User clicks spinner button
-2. System randomly selects a talking point (avoiding the last shown)
-3. Speech bubble appears with title and summary
-4. User clicks bubble to open modal
-5. Modal displays full details with sources
-6. User closes modal and can spin again for a different point
+1. User clicks the spinner button.
+2. System randomly selects a top-level topic (avoiding the last shown).
+3. The speech bubble appears with the topic title and summary.
+4. User clicks the bubble to open the modal.
+5. Modal displays the topic details plus a list of follow-up questions written as prompts.
+6. User selects a prompt to reveal its answer; the modal pushes that follow-up onto a navigation stack.
+7. A back control lets the user return to the previous level or all the way back to the original topic.
+8. User closes the modal and can spin again for a different topic.
 
 ### Accessibility Features
 

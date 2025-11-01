@@ -12,13 +12,13 @@
 - [x] Build interactive components (spinner, speech bubble, modal) (Phase 3)
 - [x] Add QA dashboard for content coverage
 - [x] Create the all-points overview page (Phase 4)
-- [ ] Polish UI/UX and test for mobile responsiveness (Phase 5)
-- [ ] Layer issue-level exploration (nested questions/answers) once content is ready
+- [x] Polish UI/UX and test for mobile responsiveness (Phase 5)
+- [ ] Enable deep-dive exploration: recursive talking points with follow-up questions and back navigation
 
 ## Content Production
-- [ ] Research current NJ 2025 race topics and gather talking points per candidate
+- [ ] Research current NJ 2025 race topics and gather top-level talking points per candidate
 - [x] Replace placeholder headshots with vetted, licensed images
-- [ ] Draft detailed talking point `details` copy and cite trustworthy sources
+- [ ] Draft follow-up question blurbs linked to each top-level talking point
 - [ ] Validate new content via `/qa/` dashboard before publishing
 
 ## Documentation & Ops
