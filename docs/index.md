@@ -4,20 +4,40 @@ layout: home
 hero:
   name: "Voter Decision Aid"
   text: "An interactive guide to political candidates."
-  tagline: Explore claims, ask questions, and get the facts.
+  tagline: Explore claims, ask questions, and get the facts. Browse every talking point in the All Points catalog.
   actions:
     - theme: brand
-      text: Get Started
+      text: Explore Candidates
       link: /candidates/
+    - theme: alt
+      text: View All Points
+      link: /all-points/
 ---
 
-<script setup>
-import { getCandidateCount } from './.vitepress/data/candidates'
+<style scoped>
+:deep(.VPHero) {
+  padding-top: var(--space-3xl) !important;
+  padding-bottom: var(--space-2xl) !important;
+}
 
-const candidateCount = getCandidateCount()
-</script>
+:deep(.container) {
+  max-width: 1040px;
+  margin-left: auto;
+  margin-right: auto;
+}
 
-<div style="text-align: center; margin: 2rem 0; padding: 2rem; background: var(--vp-c-bg-soft); border-radius: 8px;">
-  <h2 style="margin-top: 0;">{{ candidateCount }} Candidates</h2>
-  <p style="color: var(--vp-c-text-2); margin-bottom: 0;">Currently tracked in our database</p>
-</div>
+@media (max-width: 768px) {
+  :deep(.VPHero) {
+    padding-top: var(--space-2xl) !important;
+    padding-bottom: var(--space-xl) !important;
+  }
+
+  :deep(.actions) {
+    flex-direction: column;
+  }
+
+  :deep(.action) {
+    width: 100%;
+  }
+}
+</style>

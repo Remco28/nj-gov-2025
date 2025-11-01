@@ -33,10 +33,17 @@ All candidate information, talking points, and related content is managed throug
 - `id`: Unique identifier in kebab-case (e.g., "john-doe")
 - `name`: Candidate's full name as displayed
 - `party`: Political party affiliation
-- `headshot`: URL to candidate photo (100x100px recommended)
+- `headshot`: URL to candidate photo (portrait-oriented, displayed at 128px circles - see note below)
 - `summary`: 1-2 sentence bio
 - `issues`: Reserved for future use
 - `talkingPoints`: Array of talking point objects (see below)
+
+**Headshot Image Guidelines:**
+- Headshots are displayed as 128px circular images on candidate cards and in the All Points index
+- Use portrait-oriented images (3:4 aspect ratio works well)
+- Images should be at least 256x256px for crisp display on high-DPI screens
+- Faces will be centered using `object-fit: cover` to ensure proper cropping
+- If an image fails to load, the system displays the candidate's initials as a fallback
 
 ### Adding Talking Points
 

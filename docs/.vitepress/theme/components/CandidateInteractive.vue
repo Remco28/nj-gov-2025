@@ -88,8 +88,11 @@ function closeModal() {
   <div class="candidate-interactive">
     <div class="interactive-header">
       <h2 class="interactive-title">
-        {{ candidateData?.name }}'s Talking Points
+        {{ candidateData?.name }}
       </h2>
+      <p v-if="candidateData" class="interactive-party">
+        {{ candidateData.party }} Party
+      </p>
       <p v-if="hasTalkingPoints" class="interactive-description">
         Spin to explore a random talking point from this candidate
       </p>
@@ -132,22 +135,31 @@ function closeModal() {
 
 <style scoped>
 .candidate-interactive {
-  max-width: 800px;
+  max-width: 1040px;
   margin: 0 auto;
-  padding: 2rem 0;
+  padding: var(--space-xl) 0;
 }
 
 .interactive-header {
   text-align: center;
-  margin-bottom: 2rem;
+  margin-bottom: var(--space-xl);
 }
 
 .interactive-title {
   font-size: 1.75rem;
   font-weight: 600;
   color: var(--vp-c-text-1);
-  margin: 0 0 0.75rem 0;
+  margin: 0;
   line-height: 1.3;
+}
+
+.interactive-party {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--vp-c-text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin: var(--space-xs) 0 var(--space-md) 0;
 }
 
 .interactive-description {
@@ -167,17 +179,44 @@ function closeModal() {
 .interactive-content {
   display: flex;
   flex-direction: column;
+  gap: var(--space-xl);
   align-items: center;
-  gap: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .interactive-content {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: var(--space-3xl);
+    align-items: center;
+    background: var(--vp-c-bg-soft);
+    border: 1px solid var(--vp-c-divider);
+    border-radius: var(--radius-lg);
+    padding: var(--space-2xl);
+    box-shadow: var(--shadow-lg);
+  }
 }
 
 .spinner-section {
   display: flex;
+  flex-direction: column;
+  align-items: center;
   justify-content: center;
 }
 
 .bubble-section {
   width: 100%;
+  min-height: 200px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+@media (min-width: 1024px) {
+  .bubble-section {
+    min-height: 300px;
+    justify-content: flex-start;
+  }
 }
 
 /* Bubble transition animations */
@@ -199,7 +238,7 @@ function closeModal() {
 /* Responsive adjustments */
 @media (max-width: 640px) {
   .candidate-interactive {
-    padding: 1.5rem 0;
+    padding: var(--space-lg) 0;
   }
 
   .interactive-title {
@@ -208,6 +247,10 @@ function closeModal() {
 
   .interactive-description {
     font-size: 0.9375rem;
+  }
+
+  .interactive-content {
+    gap: var(--space-lg);
   }
 }
 </style>

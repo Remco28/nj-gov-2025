@@ -8,8 +8,10 @@ import { getAllCandidates } from '../.vitepress/data/candidates'
 const candidates = getAllCandidates()
 </script>
 
-<div v-for="candidate in candidates" :key="candidate.id" style="margin-bottom: 4rem;">
-  <CandidateInteractive :candidate="candidate" />
+<div class="screen-container">
+  <div v-for="candidate in candidates" :key="candidate.id" style="margin-bottom: 4rem;">
+    <CandidateInteractive :candidate="candidate" />
+  </div>
 </div>
 
 ---
