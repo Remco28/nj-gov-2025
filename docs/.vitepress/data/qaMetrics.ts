@@ -6,7 +6,7 @@
  * and coverage gaps for content maintainers.
  */
 
-import { getAllCandidates, type Candidate, type TalkingPoint } from './candidates'
+import { getAllCandidates, countAllFollowUps, type Candidate, type TalkingPoint } from './candidates'
 
 /**
  * Represents a single QA metric for display
@@ -110,6 +110,9 @@ export function getQaSummaryMetrics(): QaMetric[] {
     ? (totalTalkingPoints / totalCandidates).toFixed(1)
     : '0.0'
 
+  // Count total follow-ups across all candidates
+  const totalFollowUps = countAllFollowUps()
+
   return [
     {
       id: 'total-candidates',
@@ -124,6 +127,13 @@ export function getQaSummaryMetrics(): QaMetric[] {
       value: totalTalkingPoints,
       status: totalTalkingPoints > 0 ? 'ok' : 'warning',
       description: 'Total number of talking points across all candidates'
+    },
+    {
+      id: 'total-follow-ups',
+      label: 'Total Follow-Up Questions',
+      value: totalFollowUps,
+      status: 'ok',
+      description: 'Total number of follow-up questions across all topics (recursive count)'
     },
     {
       id: 'avg-talking-points',

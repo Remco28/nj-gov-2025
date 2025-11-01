@@ -35,20 +35,30 @@ Node.js 18+ is recommended.
      "issues": [],
      "talkingPoints": [
        {
-         "id": "unique-talking-point-id",
-         "title": "Headline",
+         "id": "topic-id",
+         "title": "Headline shown in the bubble.",
          "summary": "Short summary for the speech bubble.",
          "details": "Longer explanation shown in the modal.",
          "sources": [
            { "label": "Source Label", "url": "https://example.com/article" }
+         ],
+         "followUps": [
+           {
+             "id": "follow-up-id",
+             "prompt": "Has this approach been tried in other cities? How did it work out?",
+             "summary": "Short answer that appears after the question is clicked.",
+             "details": "Optional supporting context.",
+             "followUps": []
+           }
          ]
        }
      ]
    }
    ```
 3. Keep IDs lowercase, kebab-case, and unique across the entire file.
-4. Add at least one source per talking point whenever possible.
-5. Save the file and run `npm run dev` (or refresh your dev tab) to verify the interactive components render correctly.
+4. Only top-level topics (items inside `talkingPoints`) appear in the spinner; follow-ups are question/answer blurbs surfaced inside the modal.
+5. Add sources where available, especially for top-level claims.
+6. Save the file and run `npm run dev` (or refresh your dev tab) to verify the interactive components render correctly.
 
 Refer to `docs/content/README.md` for additional writing guidance and best practices.
 

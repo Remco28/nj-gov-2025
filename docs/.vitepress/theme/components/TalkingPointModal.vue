@@ -2,21 +2,22 @@
 /**
  * TalkingPointModal Component
  *
- * Modal dialog for displaying full talking point details.
+ * Modal dialog for displaying talking point details with support for recursive follow-up navigation.
  * Includes focus trapping, escape key handling, and overlay click to close.
  * Follows accessible dialog pattern with ARIA attributes.
  */
 
-import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
-import type { TalkingPoint } from '../../data/candidates'
+import { ref, watch, onMounted, onUnmounted, nextTick, computed } from 'vue'
+import type { FollowUp } from '../../data/candidates'
+import type { useNavigationStack } from '../../data/state/useNavigationStack'
 
 interface Props {
-  /** The talking point to display */
-  talkingPoint: TalkingPoint | null
   /** Whether the modal is open */
   open: boolean
   /** Optional context label (e.g., candidate name and party) */
   contextLabel?: string
+  /** Navigation stack state and methods from useNavigationStack composable */
+  navigation: ReturnType<typeof useNavigationStack>
 }
 
 const props = defineProps<Props>()
@@ -33,8 +34,45 @@ const closeButtonRef = ref<HTMLButtonElement | null>(null)
 const focusableElements = ref<HTMLElement[]>([])
 const lastActiveElement = ref<HTMLElement | null>(null)
 
+// Computed values from navigation state
+const currentTitle = computed(() => {
+  const node = props.navigation.currentNode.value
+  if (!node) return ''
+  return node.type === 'topic' ? node.node.title : node.node.prompt
+})
+
+const currentId = computed(() => {
+  const node = props.navigation.currentNode.value
+  if (!node) return ''
+  return node.node.id
+})
+
+const hasFollowUps = computed(() => {
+  const followUps = props.navigation.currentFollowUps.value
+  return followUps && followUps.length > 0
+})
+
+const canGoBack = computed(() => {
+  return props.navigation.depth.value > 0
+})
+
+const backButtonLabel = computed(() => {
+  const prev = props.navigation.previousNode.value
+  if (!prev) return 'Back'
+  const title = prev.type === 'topic' ? prev.node.title : prev.node.prompt
+  return `← Back to "${title}"`
+})
+
 function close() {
   emit('close')
+}
+
+function handleOpenFollowUp(followUp: FollowUp) {
+  props.navigation.openFollowUp(followUp)
+}
+
+function handleGoBack() {
+  props.navigation.goBack()
 }
 
 function handleOverlayClick(event: MouseEvent) {
@@ -128,11 +166,11 @@ onUnmounted(() => {
 <template>
   <Transition name="modal">
     <div
-      v-if="open && talkingPoint"
+      v-if="open && navigation.currentNode.value"
       class="modal-overlay"
       role="dialog"
       aria-modal="true"
-      :aria-labelledby="`modal-title-${talkingPoint.id}`"
+      :aria-labelledby="`modal-title-${currentId}`"
       @click="handleOverlayClick"
     >
       <div ref="modalRef" class="modal-container">
@@ -140,17 +178,17 @@ onUnmounted(() => {
           <div class="modal-header-content">
             <p
               v-if="contextLabel"
-              :id="`modal-context-${talkingPoint.id}`"
+              :id="`modal-context-${currentId}`"
               class="modal-context"
             >
               {{ contextLabel }}
             </p>
             <h2
-              :id="`modal-title-${talkingPoint.id}`"
+              :id="`modal-title-${currentId}`"
               class="modal-title"
-              :aria-describedby="contextLabel ? `modal-context-${talkingPoint.id}` : undefined"
+              :aria-describedby="contextLabel ? `modal-context-${currentId}` : undefined"
             >
-              {{ talkingPoint.title }}
+              {{ currentTitle }}
             </h2>
           </div>
           <button
@@ -164,17 +202,26 @@ onUnmounted(() => {
         </div>
 
         <div class="modal-body">
-          <p class="modal-summary">{{ talkingPoint.summary }}</p>
+          <!-- Back button (shown when navigated into follow-ups) -->
+          <button
+            v-if="canGoBack"
+            class="back-button"
+            @click="handleGoBack"
+          >
+            {{ backButtonLabel }}
+          </button>
 
-          <div v-if="talkingPoint.details" class="modal-details">
+          <p class="modal-summary">{{ navigation.currentSummary.value }}</p>
+
+          <div v-if="navigation.currentDetails.value" class="modal-details">
             <h3 class="details-heading">Details</h3>
-            <p>{{ talkingPoint.details }}</p>
+            <p>{{ navigation.currentDetails.value }}</p>
           </div>
 
-          <div v-if="talkingPoint.sources && talkingPoint.sources.length > 0" class="modal-sources">
+          <div v-if="navigation.currentSources.value && navigation.currentSources.value.length > 0" class="modal-sources">
             <h3 class="sources-heading">Sources</h3>
             <ul class="sources-list">
-              <li v-for="(source, index) in talkingPoint.sources" :key="index">
+              <li v-for="(source, index) in navigation.currentSources.value" :key="index">
                 <a
                   :href="source.url"
                   target="_blank"
@@ -186,6 +233,21 @@ onUnmounted(() => {
                 </a>
               </li>
             </ul>
+          </div>
+
+          <!-- Follow-up questions -->
+          <div v-if="hasFollowUps" class="modal-followups">
+            <h3 class="followups-heading">Explore Further</h3>
+            <div class="followups-list">
+              <button
+                v-for="followUp in navigation.currentFollowUps.value"
+                :key="followUp.id"
+                class="followup-button"
+                @click="handleOpenFollowUp(followUp)"
+              >
+                {{ followUp.prompt }}
+              </button>
+            </div>
           </div>
         </div>
 
@@ -285,6 +347,34 @@ onUnmounted(() => {
   padding: 1.5rem;
 }
 
+.back-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  margin-bottom: 1rem;
+  background: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 6px;
+  color: var(--vp-c-text-2);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+}
+
+.back-button:hover {
+  background: var(--vp-c-brand-soft);
+  color: var(--vp-c-brand);
+  border-color: var(--vp-c-brand);
+}
+
+.back-button:focus-visible {
+  outline: 2px solid var(--vp-c-brand);
+  outline-offset: 2px;
+}
+
 .modal-summary {
   font-size: 1.125rem;
   color: var(--vp-c-text-1);
@@ -378,6 +468,59 @@ onUnmounted(() => {
 
 .modal-action-close:active {
   transform: translateY(0);
+}
+
+/* Follow-up questions section */
+.modal-followups {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--vp-c-divider);
+}
+
+.followups-heading {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--vp-c-text-1);
+  margin: 0 0 1rem 0;
+}
+
+.followups-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.followup-button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 1rem;
+  background: var(--vp-c-bg-soft);
+  border: 1px solid var(--vp-c-divider);
+  border-radius: 8px;
+  color: var(--vp-c-text-1);
+  font-size: 0.9375rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+.followup-button:hover {
+  background: var(--vp-c-brand-soft);
+  border-color: var(--vp-c-brand);
+  color: var(--vp-c-brand);
+  transform: translateX(4px);
+}
+
+.followup-button:focus-visible {
+  outline: 2px solid var(--vp-c-brand);
+  outline-offset: 2px;
+}
+
+.followup-button:active {
+  transform: translateX(2px);
 }
 
 /* Transition animations */

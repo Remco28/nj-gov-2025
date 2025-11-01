@@ -19,7 +19,26 @@ export interface TalkingPointSource {
 }
 
 /**
- * Represents a candidate's talking point or position
+ * Represents a follow-up question/answer node in a recursive chain
+ * Follow-ups use 'prompt' instead of 'title' to distinguish them from top-level topics
+ */
+export interface FollowUp {
+  /** Unique identifier for the follow-up */
+  id: string
+  /** Question prompt displayed as a button (e.g., "How does this work?") */
+  prompt: string
+  /** 1-2 sentence answer summary */
+  summary: string
+  /** Optional longer explanation */
+  details?: string
+  /** Optional source citations */
+  sources?: TalkingPointSource[]
+  /** Optional nested follow-up questions (recursive structure) */
+  followUps?: FollowUp[]
+}
+
+/**
+ * Represents a candidate's talking point or position (top-level topic)
  */
 export interface TalkingPoint {
   /** Unique identifier for the talking point */
@@ -32,6 +51,8 @@ export interface TalkingPoint {
   details?: string
   /** Array of source citations */
   sources?: TalkingPointSource[]
+  /** Optional nested follow-up questions */
+  followUps?: FollowUp[]
 }
 
 /**
@@ -80,7 +101,8 @@ export function getCandidateCount(): number {
 }
 
 /**
- * Get all talking points for a specific candidate
+ * Get all top-level talking points for a specific candidate
+ * Note: This returns only top-level topics, not nested follow-ups
  * @param candidateId - The candidate's unique identifier
  * @returns Array of talking points, or empty array if candidate not found or has no talking points
  */
@@ -91,6 +113,7 @@ export function getTalkingPointsByCandidate(candidateId: string): TalkingPoint[]
 
 /**
  * Get a random talking point for a candidate, optionally excluding a specific one
+ * Note: This selects only from top-level topics, not nested follow-ups
  * @param candidateId - The candidate's unique identifier
  * @param excludeId - Optional talking point ID to exclude from selection
  * @returns A random talking point, or null if none available
@@ -180,4 +203,77 @@ export function getAllCandidateTalkingPoints(): CandidateTalkingPointEntry[] {
 export function findCandidateTalkingPoint(anchorId: string): CandidateTalkingPointEntry | undefined {
   const entries = getAllCandidateTalkingPoints()
   return entries.find(entry => entry.anchorId === anchorId)
+}
+
+/**
+ * Maximum depth for follow-up traversal to prevent infinite loops
+ */
+const MAX_FOLLOWUP_DEPTH = 10
+
+/**
+ * Recursively count all follow-ups in a follow-up tree
+ * Includes depth limit to prevent infinite loops from circular references
+ * @param followUps - Array of follow-ups to count
+ * @param currentDepth - Current recursion depth (used internally)
+ * @returns Total count of all follow-ups in the tree
+ */
+export function countFollowUps(followUps: FollowUp[] | undefined, currentDepth = 0): number {
+  if (!followUps || followUps.length === 0 || currentDepth >= MAX_FOLLOWUP_DEPTH) {
+    return 0
+  }
+
+  let count = followUps.length
+
+  for (const followUp of followUps) {
+    if (followUp.followUps && followUp.followUps.length > 0) {
+      count += countFollowUps(followUp.followUps, currentDepth + 1)
+    }
+  }
+
+  return count
+}
+
+/**
+ * Flatten a follow-up tree into a single array
+ * Includes depth limit to prevent infinite loops from circular references
+ * @param followUps - Array of follow-ups to flatten
+ * @param currentDepth - Current recursion depth (used internally)
+ * @returns Flattened array of all follow-ups
+ */
+export function flattenFollowUps(followUps: FollowUp[] | undefined, currentDepth = 0): FollowUp[] {
+  if (!followUps || followUps.length === 0 || currentDepth >= MAX_FOLLOWUP_DEPTH) {
+    return []
+  }
+
+  const flattened: FollowUp[] = []
+
+  for (const followUp of followUps) {
+    flattened.push(followUp)
+
+    if (followUp.followUps && followUp.followUps.length > 0) {
+      flattened.push(...flattenFollowUps(followUp.followUps, currentDepth + 1))
+    }
+  }
+
+  return flattened
+}
+
+/**
+ * Count all follow-ups across all candidates
+ * Useful for QA metrics and content auditing
+ * @returns Total count of all follow-ups in the system
+ */
+export function countAllFollowUps(): number {
+  const candidates = getAllCandidates()
+  let totalCount = 0
+
+  for (const candidate of candidates) {
+    const talkingPoints = candidate.talkingPoints || []
+
+    for (const talkingPoint of talkingPoints) {
+      totalCount += countFollowUps(talkingPoint.followUps)
+    }
+  }
+
+  return totalCount
 }

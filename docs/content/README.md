@@ -45,15 +45,19 @@ All candidate information, talking points, and related content is managed throug
 - Faces will be centered using `object-fit: cover` to ensure proper cropping
 - If an image fails to load, the system displays the candidate's initials as a fallback
 
-### Adding Talking Points
+### Adding Talking Point Topics and Follow-Ups
 
-Talking points power the interactive spinner feature. Each talking point represents a position, claim, or policy that users can explore.
+Talking points now follow a **topic → follow-up question** hierarchy.
 
-**Talking Point Structure:**
+- **Top-level topics** are the primary claims or commitments. These fuel the spinner experience and display in the talking point bubble.
+- **Follow-up questions** live inside a topic's `followUps` array. Each follow-up is written as a user-facing question and opens a new blurb when clicked in the modal.
+- Follow-ups may themselves contain additional `followUps`, allowing for deeper “why/how” chains. There is no enforced depth limit.
+
+**Top-Level Topic Structure:**
 
 ```json
 {
-  "id": "unique-talking-point-id",
+  "id": "unique-topic-id",
   "title": "Short Headline",
   "summary": "Brief 1-2 sentence summary displayed in the speech bubble.",
   "details": "Longer explanation with more context. This appears in the modal when users click for details.",
@@ -62,18 +66,35 @@ Talking points power the interactive spinner feature. Each talking point represe
       "label": "Source Name",
       "url": "https://example.com/source"
     }
+  ],
+  "followUps": [
+    {
+      "id": "follow-up-id",
+      "prompt": "Has this approach been tried in other cities? How did it work out?",
+      "summary": "Short answer or blurb that addresses the question.",
+      "details": "Optional deeper context to show in the modal.",
+      "followUps": []
+    }
   ]
 }
 ```
 
 **Field Guide:**
-- `id`: Unique identifier in kebab-case (e.g., "sherrill-healthcare")
-- `title`: 3-6 word headline
+- `id`: Unique identifier in kebab-case (e.g., `sherrill-affordability`)
+- `title`: 3-6 word headline for the top-level topic
 - `summary`: 1-2 sentences for the speech bubble (aim for 100-150 characters)
 - `details`: Full explanation with context (optional but recommended)
 - `sources`: Array of citation objects with label and URL (optional)
+- `followUps`: Optional array of follow-up question objects (see below). Omit the property if there are no follow-ups.
 
-### Example: Adding a Talking Point
+**Follow-Up Object Fields:**
+- `id`: Unique identifier within the candidate (kebab-case)
+- `prompt`: User-facing question text that appears beneath the topic
+- `summary`: 1-2 sentence answer displayed when the question is opened
+- `details`: Optional expanded explanation
+- `followUps`: Optional array for continuing the chain (same shape recursively)
+
+### Example: Adding a Talking Point Topic with Follow-Ups
 
 ```json
 {
@@ -85,14 +106,23 @@ Talking points power the interactive spinner feature. Each talking point represe
   "issues": [],
   "talkingPoints": [
     {
-      "id": "sherrill-education",
-      "title": "Education Funding",
-      "summary": "Supports increased funding for public schools and universal pre-K programs.",
-      "details": "Mikie Sherrill has championed legislation to increase federal education funding, with a focus on reducing class sizes and expanding access to early childhood education. Her education plan includes increased teacher salaries and modernized school facilities.",
+      "id": "sherrill-affordability",
+      "title": "Make New Jersey Affordable",
+      "summary": "Focus on housing, taxes, and transit costs to keep families in the state.",
+      "details": "Sherrill’s affordability agenda combines housing supply reforms, targeted tax credits, and commuter rail upgrades.",
       "sources": [
         {
-          "label": "Education Policy Statement",
-          "url": "https://example.com/policy"
+          "label": "Affordability Plan",
+          "url": "https://example.com/affordability"
+        }
+      ],
+      "followUps": [
+        {
+          "id": "sherrill-affordability-housing",
+          "prompt": "Has this approach been tried in other cities? How did it work out?",
+          "summary": "Minneapolis and Houston both relaxed zoning and saw measurable increases in housing supply.",
+          "details": "YIMBY zoning reforms in Minneapolis spurred duplex construction, while Houston’s permitting changes cut build timelines by 15%.",
+          "followUps": []
         }
       ]
     }

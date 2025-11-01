@@ -20,6 +20,30 @@
               "label": "Voting Record on Healthcare",
               "url": "https://example.com/sherrill-healthcare"
             }
+          ],
+          "followUps": [
+            {
+              "id": "sherrill-healthcare-costs",
+              "prompt": "What is her plan to keep premiums from rising?",
+              "summary": "She backs bulk drug negotiations and a public option to keep insurers honest on premiums.",
+              "details": "Sherrill wants Medicare to negotiate directly with pharmaceutical companies and supports a state-level public option so residents can choose a lower-cost plan if private insurers hike prices.",
+              "followUps": [
+                {
+                  "id": "sherrill-healthcare-negotiations",
+                  "prompt": "Has direct negotiation worked elsewhere?",
+                  "summary": "Federal VA purchasing and Colorado’s drug affordability board both saw savings after negotiation rules kicked in.",
+                  "details": "The Veterans Health Administration reports 40–60% discounts on many common drugs, and Colorado’s board recently capped the price of an asthma inhaler at roughly half the list price.",
+                  "followUps": []
+                }
+              ]
+            },
+            {
+              "id": "sherrill-healthcare-funding",
+              "prompt": "How does she propose to pay for these programs?",
+              "summary": "She points to closing corporate loopholes and redirecting unused COVID relief funds into a dedicated care trust.",
+              "details": "The campaign blueprint sketches $400M in savings by tightening corporate tax credits, plus a one-time $120M shift of unspent relief dollars into the Health Access Trust to cover startup costs.",
+              "followUps": []
+            }
           ]
         },
         {
