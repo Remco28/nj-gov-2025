@@ -12,7 +12,8 @@ This file is the single source of truth for locating key project assets.
 ## Code & Content Entrypoints
 - **VitePress Content Root**: `/docs`
 - **VitePress Configuration**: `docs/.vitepress/config.mjs`
-- **Structured Candidate Data**: `docs/content/candidates.json`
+- **Structured Candidate Data (aggregate)**: `docs/content/candidates.json`
+- **Topic Authoring Directory**: `docs/content/topics/`
 - **Data Access Helpers**: `docs/.vitepress/data/`
 - **Theme Components**: `docs/.vitepress/theme/`
 - **Package Management**: `package.json`
@@ -26,3 +27,4 @@ This file is the single source of truth for locating key project assets.
 ## Research Workflow
 - **Incoming Research Submissions**: `research/submissions/`
 - **Research Submission Template**: `templates/research.md`
+- **Topic JSON Template**: `templates/topic.json`

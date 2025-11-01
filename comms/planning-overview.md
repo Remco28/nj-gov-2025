@@ -63,7 +63,9 @@ The site promotes critical thinking over rote information, turning election anal
 - **Deployment**: GitHub Pages with GitHub Actions for automated builds on push.
 
 ### 3.2 Data Structure
-To prioritize AI-friendliness and context windows, content is modularized: One main Markdown file per candidate for overview data (e.g., photo, talking points list), with each major claim/talking point broken into its own separate Markdown file (e.g., `/docs/candidates/sherrill/opioid-crisis.md`). This keeps files small (under 500-1000 lines), allowing AI to process/format one at a time efficiently without overwhelming context.
+**Update (Oct 31, 2025):** Interactive data now lives in JSON topic files (`docs/content/topics/<candidate>/<topic-id>.json`). Each topic file captures one top-level talking point plus its recursive follow-ups, and the contents are temporarily copied into `docs/content/candidates.json` for the build. The Markdown guidance below still applies to research drafts, but AI conversion should target the JSON template referenced in `docs/content/README.md`.
+
+To prioritize AI-friendliness and context windows, content remains modular: One user-facing research note per topic, one JSON topic file per talking point, and a lightweight aggregate consumed at build time. This keeps files small (under 500-1000 lines), allowing AI to process/format one at a time efficiently without overwhelming context.
 
 - **Workflow**:
   - Human (owner) creates initial "user-friendly" Markdown files: Simple, unstructured notes (e.g., plain text dumps of claims, questions, answers, facts).

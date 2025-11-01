@@ -1,0 +1,28 @@
+{
+  "id": "candidate-topic-id",
+  "candidateId": "candidate-id",
+  "title": "Top-level topic headline",
+  "summary": "1–2 sentence summary for the bubble.",
+  "details": "Optional longer blurb for the modal.",
+  "sources": [
+    {
+      "label": "Source Label",
+      "url": "https://example.com/source"
+    }
+  ],
+  "followUps": [
+    {
+      "id": "candidate-topic-followup",
+      "prompt": "User-facing follow-up question?",
+      "summary": "Short answer shown after clicking.",
+      "details": "Optional supporting explanation.",
+      "sources": [
+        {
+          "label": "Follow-Up Source",
+          "url": "https://example.com/followup"
+        }
+      ],
+      "followUps": []
+    }
+  ]
+}

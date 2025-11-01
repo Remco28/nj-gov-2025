@@ -8,7 +8,18 @@ All candidate information, talking points, and related content is managed throug
 
 ## File Structure
 
-- `candidates.json` - Complete candidate information including talking points
+- `candidates.json` – Aggregated candidate list consumed by the site build (temporary until automated assembly is in place)
+- `topics/` – **Authoring home for all talking point topics and follow-ups (one file per topic)**
+
+```
+docs/content/
+├── candidates.json         # auto-generated or manually assembled aggregate
+└── topics/
+    ├── mikie-sherrill/
+    │   └── sherrill-healthcare.json
+    └── jack-ciattarelli/
+        └── ciattarelli-taxes.json
+```
 
 ## Working with Candidates
 
@@ -45,34 +56,31 @@ All candidate information, talking points, and related content is managed throug
 - Faces will be centered using `object-fit: cover` to ensure proper cropping
 - If an image fails to load, the system displays the candidate's initials as a fallback
 
-### Adding Talking Point Topics and Follow-Ups
+### Authoring Talking Point Topics (One File Per Topic)
 
-Talking points now follow a **topic → follow-up question** hierarchy.
+Talking points follow a **topic → follow-up question** hierarchy. To keep AI agents within a comfortable context window, store **each topic (with its follow-ups) in its own JSON file** under `docs/content/topics/<candidate-id>/`.
 
-- **Top-level topics** are the primary claims or commitments. These fuel the spinner experience and display in the talking point bubble.
-- **Follow-up questions** live inside a topic's `followUps` array. Each follow-up is written as a user-facing question and opens a new blurb when clicked in the modal.
-- Follow-ups may themselves contain additional `followUps`, allowing for deeper “why/how” chains. There is no enforced depth limit.
-
-**Top-Level Topic Structure:**
+**Topic File Template:** `docs/content/topics/<candidate>/<topic-id>.json` (start from `templates/topic.json`)
 
 ```json
 {
-  "id": "unique-topic-id",
-  "title": "Short Headline",
-  "summary": "Brief 1-2 sentence summary displayed in the speech bubble.",
-  "details": "Longer explanation with more context. This appears in the modal when users click for details.",
+  "id": "sherrill-affordability",
+  "candidateId": "mikie-sherrill",
+  "title": "Make New Jersey Affordable",
+  "summary": "Focus on housing, taxes, and transit costs to keep families in the state.",
+  "details": "Sherrill’s affordability agenda combines housing supply reforms, targeted tax credits, and commuter rail upgrades.",
   "sources": [
     {
-      "label": "Source Name",
-      "url": "https://example.com/source"
+      "label": "Affordability Plan",
+      "url": "https://example.com/affordability"
     }
   ],
   "followUps": [
     {
-      "id": "follow-up-id",
+      "id": "sherrill-affordability-housing",
       "prompt": "Has this approach been tried in other cities? How did it work out?",
-      "summary": "Short answer or blurb that addresses the question.",
-      "details": "Optional deeper context to show in the modal.",
+      "summary": "Minneapolis and Houston both relaxed zoning and saw measurable increases in housing supply.",
+      "details": "YIMBY zoning reforms in Minneapolis spurred duplex construction, while Houston’s permitting changes cut build timelines by 15%.",
       "followUps": []
     }
   ]
@@ -80,55 +88,23 @@ Talking points now follow a **topic → follow-up question** hierarchy.
 ```
 
 **Field Guide:**
-- `id`: Unique identifier in kebab-case (e.g., `sherrill-affordability`)
-- `title`: 3-6 word headline for the top-level topic
-- `summary`: 1-2 sentences for the speech bubble (aim for 100-150 characters)
-- `details`: Full explanation with context (optional but recommended)
-- `sources`: Array of citation objects with label and URL (optional)
-- `followUps`: Optional array of follow-up question objects (see below). Omit the property if there are no follow-ups.
+- `id`: Unique identifier in kebab-case (globally unique across all topics).
+- `candidateId`: Parent candidate identifier (matches `candidates.json`).
+- `title`, `summary`, `details`, `sources`: Same semantics as before.
+- `followUps`: Optional array of follow-up nodes, each with `id`, `prompt`, `summary`, optional `details`, optional nested `followUps`, and optional `sources`.
 
-**Follow-Up Object Fields:**
-- `id`: Unique identifier within the candidate (kebab-case)
-- `prompt`: User-facing question text that appears beneath the topic
-- `summary`: 1-2 sentence answer displayed when the question is opened
-- `details`: Optional expanded explanation
-- `followUps`: Optional array for continuing the chain (same shape recursively)
+Keep each file focused on a single talking point. If a topic grows too large, consider splitting follow-up chains into separate files and referencing them (future tooling will support composition).
 
-### Example: Adding a Talking Point Topic with Follow-Ups
+### Assembling `candidates.json` (Temporary Manual Step)
 
-```json
-{
-  "id": "mikie-sherrill",
-  "name": "Mikie Sherrill",
-  "party": "Democratic",
-  "headshot": "https://via.placeholder.com/100",
-  "summary": "U.S. Representative for New Jersey's 11th congressional district.",
-  "issues": [],
-  "talkingPoints": [
-    {
-      "id": "sherrill-affordability",
-      "title": "Make New Jersey Affordable",
-      "summary": "Focus on housing, taxes, and transit costs to keep families in the state.",
-      "details": "Sherrill’s affordability agenda combines housing supply reforms, targeted tax credits, and commuter rail upgrades.",
-      "sources": [
-        {
-          "label": "Affordability Plan",
-          "url": "https://example.com/affordability"
-        }
-      ],
-      "followUps": [
-        {
-          "id": "sherrill-affordability-housing",
-          "prompt": "Has this approach been tried in other cities? How did it work out?",
-          "summary": "Minneapolis and Houston both relaxed zoning and saw measurable increases in housing supply.",
-          "details": "YIMBY zoning reforms in Minneapolis spurred duplex construction, while Houston’s permitting changes cut build timelines by 15%.",
-          "followUps": []
-        }
-      ]
-    }
-  ]
-}
-```
+Until automated assembly lands, the site still reads from `docs/content/candidates.json`. After authoring or updating topic files:
+
+1. Ensure the candidate exists in `candidates.json` (see “Adding a New Candidate” above).
+2. Copy the topic object (including `followUps`) from the topic file and paste it into the candidate’s `talkingPoints` array.
+3. Remove authoring-only fields (e.g., `candidateId`) so the runtime structure matches the existing `TalkingPoint` TypeScript interface.
+4. Keep `candidates.json` tidy—only include the fields used by the site. Do not embed helper notes or drafts here.
+
+> **Heads up:** Once the modular loader is implemented, `candidates.json` will be auto-generated from the `topics/` directory. Keeping each topic isolated now will make the migration seamless.
 
 ## Best Practices
 
@@ -156,9 +132,9 @@ Talking points now follow a **topic → follow-up question** hierarchy.
 ### Data Quality
 
 - Use consistent formatting
-- Keep IDs lowercase and kebab-case
+- Keep IDs lowercase and kebab-case (`candidateId` + topic context is a good mental namespace)
 - Ensure all required fields are present
-- Test the interactive spinner after adding talking points
+- Test the interactive spinner after assembling `candidates.json`
 
 ## QA Checklist
 

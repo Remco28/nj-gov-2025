@@ -32,7 +32,7 @@ Git Push triggers GitHub Actions
 
 ### Example: User Interacts with a Candidate Claim
 ```
-User clicks candidate photo → Vue component triggers the spinner → A random top-level topic is displayed in the speech bubble → User clicks the bubble → Modal loads topic data from `candidates.json`, showing the blurb plus follow-up questions → User selects a question to drill down, with a back control to return to the previous level.
+User clicks candidate photo → Vue component triggers the spinner → A random top-level topic is displayed in the speech bubble → User clicks the bubble → Modal loads topic data from the assembled candidate payload (`candidates.json`, sourced from `docs/content/topics/`), showing the blurb plus follow-up questions → User selects a question to drill down, with a back control to return to the previous level.
 ```
 
 ### Example: Content Update
@@ -42,7 +42,7 @@ Developer adds/edits a "user-friendly" Markdown file → AI Agent converts it to
 
 ## Key Abstractions
 
-- **Entities**: Candidate, Topic (top-level talking point), Follow-Up (recursive question/answer node). These live in `docs/content/candidates.json`.
+- **Entities**: Candidate, Topic (top-level talking point), Follow-Up (recursive question/answer node). Topics are authored per file in `docs/content/topics/` and combined into `docs/content/candidates.json` for runtime use.
 - **Boundaries**: The primary boundary is the static site consumed in the browser. Content editing happens offline by updating JSON and Markdown sources in the repo.
 
 ## Configuration
@@ -52,7 +52,7 @@ Developer adds/edits a "user-friendly" Markdown file → AI Agent converts it to
 
 ## Integration Points
 
-- **Content Source**: Candidate data is sourced from `docs/content/candidates.json`; editorial pages live alongside it in `/docs`.
+- **Content Source**: Candidate data is sourced from `docs/content/candidates.json` (assembled from `docs/content/topics/`); editorial pages live alongside it in `/docs`.
 - **Deployment**: GitHub Pages hosts the static output.
 
 ## Runtime & Operations Notes
@@ -96,8 +96,9 @@ Phase 2 moved the site to a data-driven architecture backed by JSON, keeping con
 - `getAllCandidates()` / `getCandidateById()` / `getCandidateCount()` for general access
 - `getTalkingPointsByCandidate()` and `getRandomTalkingPoint()` to feed the interactive spinner
 - Aggregation helpers (`getAllCandidateTalkingPoints`, `findCandidateTalkingPoint`) for the `/all-points/` page
+- Utility helpers to count and flatten follow-ups for QA metrics
 
-Upcoming deep-dive work will extend these helpers to understand parent/child relationships, flatten nested follow-ups for auditing views, and ensure only top-level topics surface in random spins.
+> **Authoring vs. Runtime Data**: Editors work in modular topic files under `docs/content/topics/`. The site currently consumes a manually assembled aggregate (`docs/content/candidates.json`) until an automated build step takes over.
 
 ### Theme Components
 
@@ -110,11 +111,12 @@ Components are registered globally via `docs/.vitepress/theme/index.ts`, so Mark
 
 ### Editing Workflow
 
-1. Update or add candidates/topics in `docs/content/candidates.json`.
-2. Run `npm run dev` for live preview or `npm run build` to validate JSON.
-3. Use the `/qa/` dashboard to catch missing fields or duplicate IDs before merging.
+1. Create or update topic files under `docs/content/topics/<candidate-id>/<topic-id>.json` (one topic per file).
+2. Copy each finalized topic into the appropriate candidate record inside `docs/content/candidates.json` (temporary manual assembly).
+3. Run `npm run dev` for live preview or `npm run build` to validate JSON.
+4. Use the `/qa/` dashboard to catch missing fields or duplicate IDs before merging.
 
-As we introduce follow-up questions, editors will add nested `followUps` arrays under the relevant topic. Only the top-level topics need summaries tuned for the spinner bubble; follow-ups can focus on the question-and-answer exchange shown in the modal.
+Only the top-level topics need summaries tuned for the spinner bubble; follow-ups can focus on the question-and-answer exchange shown in the modal.
 
 ## Interactive Flow (Phase 3)
 
@@ -153,7 +155,7 @@ The deep-dive work will evolve this composable (or introduce a new one) to maint
 
 ### Data Dependencies
 
-Talking points are stored in `docs/content/candidates.json` within each candidate object:
+Talking points are authored per topic under `docs/content/topics/` (each topic file includes a `candidateId` to link it back to the parent candidate). Those files are temporarily assembled into `docs/content/candidates.json` for the runtime build until automated aggregation is introduced:
 
 ```json
 {

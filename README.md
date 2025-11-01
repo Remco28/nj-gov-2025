@@ -23,8 +23,9 @@ Node.js 18+ is recommended.
 
 ## Adding Candidate Content
 
-1. Open `docs/content/candidates.json`.
-2. Add or update candidate entries inside the `candidates` array. Each object should follow the existing JSON schema:
+1. Author each talking point (with its follow-ups) as a standalone JSON file under `docs/content/topics/<candidate-id>/`. Start from `templates/topic.json` and the detailed schema in `docs/content/README.md`.
+2. After creating or updating topic files, open `docs/content/candidates.json`.
+3. Add or update candidate entries inside the `candidates` array. Each object should follow the existing JSON schema (topic files can include authoring-only helpers like `candidateId`, but drop them when copying into this aggregate):
    ```json
    {
      "id": "candidate-id",
@@ -48,17 +49,22 @@ Node.js 18+ is recommended.
              "prompt": "Has this approach been tried in other cities? How did it work out?",
              "summary": "Short answer that appears after the question is clicked.",
              "details": "Optional supporting context.",
-             "followUps": []
+             "followUps": [],
+             "sources": [
+               { "label": "Supporting Source", "url": "https://example.com/support" }
+             ]
            }
          ]
        }
      ]
    }
    ```
-3. Keep IDs lowercase, kebab-case, and unique across the entire file.
-4. Only top-level topics (items inside `talkingPoints`) appear in the spinner; follow-ups are question/answer blurbs surfaced inside the modal.
-5. Add sources where available, especially for top-level claims.
-6. Save the file and run `npm run dev` (or refresh your dev tab) to verify the interactive components render correctly.
+4. Keep IDs lowercase, kebab-case, and unique across the entire project. Match `candidateId` fields in topic files to the owning candidate.
+5. Only top-level topics (items inside `talkingPoints`) appear in the spinner; follow-ups are question/answer blurbs surfaced inside the modal.
+6. Add sources where available, especially for top-level claims.
+7. Save the file and run `npm run dev` (or refresh your dev tab) to verify the interactive components render correctly.
+
+> **Important:** `candidates.json` remains the canonical data source for the site build, but each topic should be maintained in its own file under `docs/content/topics/`. When automation is introduced, the aggregate JSON will be generated from those modular files.
 
 Refer to `docs/content/README.md` for additional writing guidance and best practices.
 
@@ -92,8 +98,8 @@ VitePress copies everything inside `docs/public` to the site root at build time,
 When an AI assistant receives a submission:
 
 1. **Review the research Markdown** and confirm sources are present.
-2. **Follow the existing content templates** (e.g., add talking points to `docs/content/candidates.json`, or create new Markdown/JSON files per the current spec). Preserve neutral tone, attribute each claim, and carry over any warnings.
-3. **Update the site data** and run `npm run build` (or `npm run dev`) to verify the new content renders.
+2. **Convert approved claims into topic files** (`docs/content/topics/<candidate>/<topic-id>.json`) using the template in the content guide. Keep one topic per file so the context stays lightweight.
+3. **Assemble the aggregate** by copying the topic object into `docs/content/candidates.json` (temporary manual step until automation is in place), then run `npm run build` (or `npm run dev`) to verify the new content renders.
 4. **Log progress in `comms/log.md`** (`AI CONVERSION START`, `AI CONVERSION DONE`) with references to the affected files.
 5. **Prompt editors to visit `/qa/`** after the conversion so they can confirm there are no missing details or sources.
 
@@ -112,6 +118,7 @@ This lightweight workflow keeps submissions small enough for quick AI turnaround
 
 - Architecture overview: `docs/ARCHITECTURE.md`
 - Content production guide: `docs/content/README.md`
+- Topic authoring quick reference: `docs/content/topics/README.md`
 - Task log and specs: `comms/`
 - High-level roadmap: `NEXT_STEPS.md`
 
